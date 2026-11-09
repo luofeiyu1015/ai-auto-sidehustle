@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>✍️ 文案生成器</h1>
+    <div class="sub">选产品 → 一键生成4平台上架文案 → 复制直接用</div>
+</div>
+
+<div class="container">
+
+    <!-- 第一步：选择产品 -->
+    <div class="card">
+        <h2>📌 第1步：选个产品</h2>
+        {% if products %}
+        <form action="/copywriter/generate" method="post" id="genForm">
+            <div class="form-row">
+                <select name="product_id" id="productSelect" onchange="switchProduct(this.value)">
+                    {% for p in products %}
+                    <option value="{{ p.id }}" {% if current_product and p.id == current_product.id %}selected{% endif %}>
+                        {{ p.cover_emoji }} {{ p.name }} (¥{{ p.price }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn block">✨ 一键生成全平台文案</button>
+        </form>
+        {% else %}
+        <div class="empty">
+            <div style="font-size:40px;">📦</div>
+            <p>还没有产品</p>
+            <a href="/" class="btn" style="margin-top:12px;">去首页生成产品</a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if current_product %}
+    <!-- 产品预览 -->
+    <div class="card">
+        <h2>📋 当前产品：{{ current_product.name }}</h2>
+        <div class="financial-row">
+            <span class="label">定价</span>
+            <span class="value pos">¥{{ current_product.price }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">目标平台</span>
+            <span class="value">{{ current_product.platforms }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">质量分</span>
+            <span class="value">{{ current_product.quality_score }}</span>
+        </div>
+        <div style="margin-top:8px; font-size:13px; color:#86868b; line-height:1.6;">
+            {{ current_product.description }}
+        </div>
+    </div>
+
+    <!-- 第二步：各平台文案 -->
+    {% if copies %}
+    <div class="card">
+        <h2>🎨 第2步：各平台文案（点复制直接用）</h2>
+
+        {% for copy in copies %}
+        <div class="copy-box">
+            <div class="copy-title">
+                <span>📱 【{{ copy.platform }}】文案</span>
+                <span class="copy-platform">{{ copy.platform }}</span>
+            </div>
+            <div class="copy-subtitle">
+                <strong>📌 上架标题：</strong>{{ copy.title }}
+            </div>
+            {% if copy.hook %}
+            <div class="copy-hook">💡 文案钩子：{{ copy.hook }}</div>
+            {% endif %}
+            <div class="copy-body">{{ copy.body }}</div>
+            {% if copy.tags %}
+            <div class="copy-tags">🏷️ 话题标签：{{ copy.tags }}</div>
+            {% endif %}
+            <div class="copy-actions">
+                <button onclick="copyText(`{{ copy.title|e }}\n\n{{ copy.body }}\n\n{{ copy.tags }}`)" class="btn">
+                    📋 复制整套（标题+正文+标签）
+                </button>
+                <button onclick="copyText(`{{ copy.body|e }}`)" class="btn secondary">
+                    只复制正文
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 快速上架清单 -->
+    <div class="card">
+        <h2>🚀 第3步：快速上架清单</h2>
+        <div style="font-size:13px; line-height:1.8;">
+            {% for copy in copies %}
+            <div style="background:#FFF5F0; padding:10px; border-radius:8px; margin-bottom:10px;">
+                <strong style="color:#FF6B35;">{{ copy.platform }}：</strong>
+                <span>
+                    1. 打开{{ copy.platform }} App → 发闲置/发笔记<br>
+                    2. 粘贴上面复制的整套文案<br>
+                    3. 上传封面图（用文字海报就行）<br>
+                    4. 设置价格 ¥{{ current_product.price }}<br>
+                    5. 发布！
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <div class="card">
+        <div class="empty">
+            <div style="font-size:40px;">✍️</div>
+            <p>还没有文案，点上面的按钮生成</p>
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+    <!-- 批量对比模式 -->
+    {% if products %}
+    <div class="card">
+        <h2>📊 已生成文案概览</h2>
+        {% set ns = namespace(has_copies=false) %}
+        {% for p in products %}
+            {% set copies = product_copies_map.get(p.id, []) %}
+            {% if copies %}
+            {% set ns.has_copies = true %}
+            <div style="margin-bottom:10px;">
+                <div style="font-size:13px; font-weight:600; margin-bottom:6px;">
+                    {{ p.cover_emoji }} {{ p.name }}
+                    <span style="color:#86868b; font-weight:normal;">（{{ copies|length }}套）</span>
+                </div>
+                <div class="compare-grid">
+                    {% for copy in copies %}
+                    <a href="/product/{{ p.id }}" class="compare-item" style="text-decoration:none; color:inherit;">
+                        <div class="platform-name">{{ copy.platform }}</div>
+                        <div class="mini-title">{{ copy.title[:25] }}...</div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+        {% if not ns.has_copies %}
+        <div style="font-size:12px; color:#86868b;">选个产品点"一键生成"就有啦</div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+function switchProduct(pid) {
+    if (pid) {
+        window.location.href = '/copywriter?pid=' + pid;
+    }
+}
+</script>
+
+{% endblock %}

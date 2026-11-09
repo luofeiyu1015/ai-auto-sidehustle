@@ -1,7 +1,5 @@
 """
-Web 管理面板 - 手机可访问
-显示系统状态、产品列表、文案、财务报表、待办任务
-支持手动录入真实收入
+Web 管理面板 v2 - 增加独立文案生成工具页
 """
 
 import sys
@@ -19,6 +17,24 @@ app = Flask(__name__,
             template_folder=str(BASE_DIR / 'static' / 'templates'))
 
 
+def get_nav_items(active=''):
+    """底部导航"""
+    items = [
+        ('/', '仪表盘', '🏠'),
+        ('/products', '产品', '📦'),
+        ('/copywriter', '文案', '✍️'),
+        ('/opportunities', '市场', '🎯'),
+        ('/finance', '财务', '💰'),
+        ('/report', '报告', '📈'),
+    ]
+    return [(url, name, icon, url == active) for url, name, icon in items]
+
+
+@app.context_processor
+def inject_nav():
+    return {'nav_items': get_nav_items()}
+
+
 @app.route('/')
 def index():
     """首页 - 系统状态仪表盘"""
@@ -28,7 +44,6 @@ def index():
     tasks = db.get_tasks(done=False)
     learnings = db.get_learnings()
     
-    # 统计
     stats = {
         'total_products': len(products),
         'ready_products': sum(1 for p in products if p['status'] == 'ready'),
@@ -71,6 +86,59 @@ def regen_copies(pid):
     if p:
         copywriter.generate_all_platform_copies(p)
     return redirect(url_for('product_detail', pid=pid))
+
+
+# ======= 新增：独立文案生成工具页 =======
+
+@app.route('/copywriter')
+def copywriter_page():
+    """文案生成工具 - 选产品 → 一键生成4平台文案"""
+    products = db.get_all_products()
+    copies = []
+    product_copies_map = {}
+    
+    # 如果有产品，默认展示第一个的文案
+    if products:
+        pid = request.args.get('pid', products[0]['id'], type=int)
+        current_product = db.get_product(pid)
+        if current_product:
+            copies = db.get_copies_by_product(pid)
+            # 如果还没有文案，自动生成
+            if not copies:
+                copies = copywriter.generate_all_platform_copies(current_product)
+                # 转为 dict 列表（从函数返回值）
+                if copies and isinstance(copies[0], dict):
+                    pass
+                else:
+                    copies = db.get_copies_by_product(pid)
+        
+        # 预处理所有产品的 copies（给底部概览用）
+        for p in products:
+            product_copies_map[p['id']] = db.get_copies_by_product(p['id'])
+    else:
+        current_product = None
+    
+    return render_template('copywriter.html', 
+                         products=products, 
+                         current_product=current_product,
+                         copies=copies,
+                         product_copies_map=product_copies_map)
+
+
+@app.route('/copywriter/generate', methods=['POST'])
+def copywriter_generate():
+    """手动触发文案生成"""
+    pid = int(request.form.get('product_id', 0))
+    if pid:
+        # 先清掉旧文案
+        with db.db_session() as conn:
+            conn.execute('DELETE FROM copies WHERE product_id=?', (pid,))
+        
+        p = db.get_product(pid)
+        if p:
+            copywriter.generate_all_platform_copies(p)
+    
+    return redirect(url_for('copywriter_page', pid=pid))
 
 
 @app.route('/opportunities')
@@ -168,7 +236,7 @@ def manual_action(action_name):
 
 @app.route('/api/status')
 def api_status():
-    """系统状态 API（供监控用）"""
+    """系统状态 API"""
     financial = db.get_financial_summary()
     products = db.get_all_products()
     opps = db.get_top_opportunities(limit=1)
@@ -183,15 +251,7 @@ def api_status():
     })
 
 
-def create_templates():
-    """首次启动时创建模板目录"""
-    tpl_dir = BASE_DIR / 'static' / 'templates'
-    tpl_dir.mkdir(parents=True, exist_ok=True)
-    return str(tpl_dir)
-
-
 if __name__ == '__main__':
     db.init_db()
-    create_templates()
     print(f"🌐 Web面板启动：http://{SERVER_HOST}:{SERVER_PORT}")
     app.run(host=SERVER_HOST, port=SERVER_PORT, debug=False)

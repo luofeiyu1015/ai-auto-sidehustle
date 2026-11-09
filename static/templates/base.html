@@ -7,7 +7,7 @@
 <title>AI副业助手</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; background: #f5f5f7; color: #1d1d1f; padding-bottom: 80px; }
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif; background: #f5f5f7; color: #1d1d1f; padding-bottom: 90px; }
 .container { max-width: 600px; margin: 0 auto; padding: 12px; }
 
 /* Header */
@@ -15,11 +15,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica
 .header h1 { font-size: 20px; font-weight: 700; }
 .header .sub { font-size: 13px; opacity: 0.9; margin-top: 4px; }
 
-/* Nav */
-.nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 8px 0; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 100; }
-.nav a { flex: 1; text-align: center; text-decoration: none; color: #86868b; font-size: 11px; padding: 4px; }
-.nav a.active { color: #FF6B35; }
-.nav .nav-icon { font-size: 22px; display: block; margin-bottom: 2px; }
+/* 底部导航 - 统一 */
+.nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 8px 0; padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -2px 10px rgba(0,0,0,0.08); z-index: 100; border-top: 1px solid #f0f0f0; }
+.nav a { flex: 1; text-align: center; text-decoration: none; color: #86868b; font-size: 11px; padding: 4px 2px; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.nav a.active { color: #FF6B35; font-weight: 500; }
+.nav .nav-icon { font-size: 22px; }
 
 /* Cards */
 .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
@@ -72,17 +72,21 @@ body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica
 .product-tags { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
 .product-tag { background: #FFF5F0; color: #FF6B35; padding: 3px 8px; border-radius: 6px; font-size: 11px; }
 
-/* Copy textarea */
-.copy-box { background: #f9f9f9; border-radius: 10px; padding: 12px; margin-top: 10px; }
-.copy-title { font-weight: 600; font-size: 14px; color: #FF6B35; margin-bottom: 6px; }
-.copy-body { font-size: 13px; line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
-.copy-actions { display: flex; gap: 8px; margin-top: 8px; }
+/* Copy blocks */
+.copy-box { background: #f9f9f9; border-radius: 12px; padding: 14px; margin-top: 12px; border-left: 4px solid #FF6B35; }
+.copy-title { font-weight: 700; font-size: 14px; color: #FF6B35; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+.copy-platform { background: #FF6B35; color: white; padding: 2px 10px; border-radius: 8px; font-size: 11px; }
+.copy-subtitle { font-size: 12px; color: #86868b; margin-bottom: 8px; }
+.copy-body { font-size: 13px; line-height: 1.7; white-space: pre-wrap; word-break: break-all; background: white; padding: 12px; border-radius: 8px; border: 1px solid #eee; }
+.copy-tags { font-size: 12px; color: #FF6B35; margin-top: 8px; }
+.copy-actions { display: flex; gap: 8px; margin-top: 10px; }
 .copy-actions .btn { flex: 1; padding: 8px; font-size: 13px; }
 
 /* Forms */
 form .form-row { margin-bottom: 12px; }
 form label { display: block; font-size: 12px; color: #86868b; margin-bottom: 4px; }
-form input, form select { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; background: white; }
+form input, form select, form textarea { width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 14px; background: white; font-family: inherit; }
+form select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2386868b' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
 
 /* Report */
 .report-box { background: #1d1d1f; color: #f5f5f7; padding: 16px; border-radius: 12px; font-family: monospace; font-size: 12px; line-height: 1.8; white-space: pre-wrap; word-break: break-all; }
@@ -107,9 +111,56 @@ form input, form select { width: 100%; padding: 10px 12px; border: 1px solid #e0
 .learning-meta { font-size: 11px; color: #86868b; margin-top: 4px; }
 
 .empty { text-align: center; padding: 40px 20px; color: #86868b; font-size: 14px; }
+
+/* 4平台文案专门样式 */
+.copy-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.copy-header .platform-tag { font-size: 13px; font-weight: 600; color: #FF6B35; }
+.copy-hook { background: #FFF5F0; color: #FF6B35; padding: 8px 10px; border-radius: 8px; font-size: 12px; margin-bottom: 8px; }
+
+/* 平台选择器 */
+.platform-tabs { display: flex; gap: 6px; overflow-x: auto; margin-bottom: 12px; padding-bottom: 4px; }
+.platform-tab { padding: 6px 14px; background: #f0f0f0; border-radius: 20px; font-size: 13px; white-space: nowrap; border: none; cursor: pointer; color: #1d1d1f; }
+.platform-tab.active { background: #FF6B35; color: white; }
+
+/* 文案对比模式 */
+.compare-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.compare-item { background: white; border-radius: 10px; padding: 10px; border: 1px solid #eee; }
+.compare-item .platform-name { font-size: 12px; font-weight: 600; color: #FF6B35; margin-bottom: 6px; }
+.compare-item .mini-title { font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 </style>
 </head>
 <body>
 {% block content %}{% endblock %}
+
+<!-- 统一底部导航 -->
+{% if nav_items %}
+<div class="nav">
+    {% for url, name, icon, active in nav_items %}
+    <a href="{{ url }}" {% if active %}class="active"{% endif %}>
+        <span class="nav-icon">{{ icon }}</span>
+        <span>{{ name }}</span>
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<script>
+function copyText(text) {
+    text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            alert('✅ 已复制！直接去平台粘贴就行');
+        });
+    } else {
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('✅ 已复制！');
+    }
+}
+</script>
 </body>
 </html>
