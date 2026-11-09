@@ -1,0 +1,20 @@
+# 数据库
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# 日志
+logs/
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# 系统
+.DS_Store
+.env

@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>🚀 AI副业助手</h1>
+    <div class="sub">系统自动运行中 · 帮你零成本搞钱</div>
+</div>
+
+<div class="container">
+
+    <!-- 核心数据 -->
+    <div class="card">
+        <h2>💰 收益概览</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="num">¥{{ financial.total_income }}</div>
+                <div class="label">总收入</div>
+            </div>
+            <div class="stat-item">
+                <div class="num">¥{{ financial.net_profit }}</div>
+                <div class="label">净利润</div>
+            </div>
+            <div class="stat-item">
+                <div class="num">¥{{ financial.week_income }}</div>
+                <div class="label">本周收入</div>
+            </div>
+            <div class="stat-item">
+                <div class="num">{{ financial.roi }}%</div>
+                <div class="label">ROI</div>
+            </div>
+        </div>
+        <div class="financial-row" style="margin-top:12px;">
+            <span class="label">本月收入</span>
+            <span class="value">¥{{ financial.month_income }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">已售出产品</span>
+            <span class="value">{{ financial.sold_products }} 个</span>
+        </div>
+    </div>
+
+    <!-- 系统操作 -->
+    <div class="card">
+        <h2>⚡ 手动触发</h2>
+        <div class="actions-grid">
+            <a href="/action/analyze" class="action-btn">
+                <div class="icon">🔍</div>
+                <div class="label">市场分析</div>
+                <div class="desc">扫描热榜找机会</div>
+            </a>
+            <a href="/action/generate" class="action-btn">
+                <div class="icon">🎨</div>
+                <div class="label">生成产品</div>
+                <div class="desc">从机会生成数字产品</div>
+            </a>
+            <a href="/action/copies" class="action-btn">
+                <div class="icon">✍️</div>
+                <div class="label">生成文案</div>
+                <div class="desc">为产品生成多平台文案</div>
+            </a>
+            <a href="/action/tasks" class="action-btn">
+                <div class="icon">📋</div>
+                <div class="label">今日任务</div>
+                <div class="desc">生成今日运营待办</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 高分机会 -->
+    {% if stats.top_opportunities %}
+    <div class="card">
+        <h2>🎯 最新机会</h2>
+        {% for opp in stats.top_opportunities %}
+        <div class="opp-item">
+            <span class="opp-keyword">{{ opp.keyword }}</span>
+            <span class="opp-score {% if opp.score >= 70 %}high{% endif %}">{{ opp.score }}分</span>
+        </div>
+        {% endfor %}
+        <a href="/opportunities" class="btn secondary block">查看全部机会 →</a>
+    </div>
+    {% endif %}
+
+    <!-- 系统状态 -->
+    <div class="card">
+        <h2>📊 系统状态</h2>
+        <div class="financial-row">
+            <span class="label">产品总数</span>
+            <span class="value">{{ stats.total_products }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">已就绪待上架</span>
+            <span class="value">{{ stats.ready_products }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">已上架</span>
+            <span class="value">{{ stats.listed_products }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">今日待办</span>
+            <span class="value">{{ stats.pending_tasks }} 条</span>
+        </div>
+        <a href="/report" class="btn block">查看今日详细报告 →</a>
+    </div>
+
+    <!-- 快速录入收入 -->
+    <div class="card">
+        <h2>💰 录入真实收入</h2>
+        <form action="/finance/record" method="post">
+            <div class="form-row">
+                <label>类型</label>
+                <select name="type">
+                    <option value="income">收入</option>
+                    <option value="cost">支出</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>金额（元）</label>
+                <input type="number" name="amount" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="form-row">
+                <label>平台</label>
+                <input type="text" name="platform" placeholder="闲鱼/小红书/抖音等">
+            </div>
+            <div class="form-row">
+                <label>备注</label>
+                <input type="text" name="description" placeholder="产品名或备注">
+            </div>
+            <button type="submit" class="btn block">保存记录</button>
+        </form>
+    </div>
+
+</div>
+
+<!-- 底部导航 -->
+<div class="nav">
+    <a href="/" class="active"><span class="nav-icon">🏠</span>首页</a>
+    <a href="/products"><span class="nav-icon">📦</span>产品</a>
+    <a href="/opportunities"><span class="nav-icon">🎯</span>机会</a>
+    <a href="/tasks"><span class="nav-icon">📋</span>任务</a>
+    <a href="/finance"><span class="nav-icon">💰</span>财务</a>
+</div>
+
+{% endblock %}

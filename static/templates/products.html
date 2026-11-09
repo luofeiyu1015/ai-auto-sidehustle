@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>📦 产品列表</h1>
+    <div class="sub">共 {{ products|length }} 个产品</div>
+</div>
+
+<div class="container">
+    {% if products %}
+        {% for p in products %}
+        <a href="/product/{{ p.id }}" class="product-card">
+            <div class="product-header">
+                <span class="product-emoji">{{ p.cover_emoji }}</span>
+                <div class="product-info">
+                    <div class="product-name">{{ p.name }}</div>
+                    <div class="product-meta">{{ p.platforms }} · 质量 {{ p.quality_score }}</div>
+                </div>
+                <div class="product-price">¥{{ p.price }}</div>
+            </div>
+            <div class="product-tags">
+                <span class="badge {{ p.status }}">
+                    {% if p.status == 'ready' %}待上架
+                    {% elif p.status == 'listed' %}已上架
+                    {% elif p.status == 'sold' %}已售出
+                    {% else %}失败{% endif %}
+                </span>
+                {% for tag in (p.tags or '').split(',')[:3] %}
+                    {% if tag.strip() %}
+                    <span class="product-tag">{{ tag.strip() }}</span>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </a>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <div style="font-size:40px;">📦</div>
+            <p>还没有产品</p>
+            <p style="margin-top:6px;">先在首页点「市场分析」「生成产品」吧！</p>
+        </div>
+    {% endif %}
+</div>
+
+<div class="nav">
+    <a href="/"><span class="nav-icon">🏠</span>首页</a>
+    <a href="/products" class="active"><span class="nav-icon">📦</span>产品</a>
+    <a href="/opportunities"><span class="nav-icon">🎯</span>机会</a>
+    <a href="/tasks"><span class="nav-icon">📋</span>任务</a>
+    <a href="/finance"><span class="nav-icon">💰</span>财务</a>
+</div>
+
+{% endblock %}

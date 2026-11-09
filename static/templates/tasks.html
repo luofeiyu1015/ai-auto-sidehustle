@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>📋 今日待办</h1>
+    <div class="sub">系统自动生成，点击完成打勾</div>
+</div>
+
+<div class="container">
+    <!-- 未完成 -->
+    {% set ns = namespace(count=0) %}
+    {% for t in tasks %}
+        {% if t.done == 0 %}
+            {% set ns.count = ns.count + 1 %}
+            <a href="/task/{{ t.id }}/done" class="task-item">
+                <span class="task-pri {{ t.priority }}"></span>
+                <span class="task-text">{{ t.title }}</span>
+                <span style="font-size:20px;">☐</span>
+            </a>
+        {% endif %}
+    {% endfor %}
+    
+    {% if ns.count == 0 %}
+    <div class="empty">
+        <div style="font-size:40px;">✨</div>
+        <p>今日任务已全部完成！</p>
+        <a href="/action/tasks" class="btn" style="margin-top:12px;">🔄 生成新任务</a>
+    </div>
+    {% endif %}
+
+    <!-- 已完成 -->
+    {% set completed = namespace(items=[]) %}
+    {% for t in tasks %}
+        {% if t.done == 1 %}
+            {% if completed.items.append(t) %}{% endif %}
+        {% endif %}
+    {% endfor %}
+    
+    {% if completed.items %}
+    <div class="card" style="margin-top:20px;">
+        <h2>✅ 已完成（{{ completed.items|length }}）</h2>
+        {% for t in completed.items %}
+        <div class="task-item done">
+            <span class="task-pri {{ t.priority }}"></span>
+            <span class="task-text">{{ t.title }}</span>
+            <span style="font-size:20px;">✅</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <a href="/action/tasks" class="btn secondary block" style="margin-top:20px;">🔄 重新生成今日任务</a>
+</div>
+
+<div class="nav">
+    <a href="/"><span class="nav-icon">🏠</span>首页</a>
+    <a href="/products"><span class="nav-icon">📦</span>产品</a>
+    <a href="/opportunities"><span class="nav-icon">🎯</span>机会</a>
+    <a href="/tasks" class="active"><span class="nav-icon">📋</span>任务</a>
+    <a href="/finance"><span class="nav-icon">💰</span>财务</a>
+</div>
+
+{% endblock %}

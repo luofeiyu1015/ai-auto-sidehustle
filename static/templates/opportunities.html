@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>🎯 市场机会</h1>
+    <div class="sub">自动扫描热榜发现的机会</div>
+</div>
+
+<div class="container">
+    <a href="/action/analyze" class="btn block">🔄 重新扫描热榜</a>
+
+    {% if opportunities %}
+        {% for opp in opportunities %}
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:16px; font-weight:600;">{{ opp.keyword }}</div>
+                <div class="opp-score {% if opp.score >= 60 %}high{% endif %}">{{ opp.score }}分</div>
+            </div>
+            <div class="financial-row" style="margin-top:10px;">
+                <span class="label">热度</span>
+                <span class="value">{{ opp.heat }}</span>
+            </div>
+            <div class="financial-row">
+                <span class="label">竞争程度</span>
+                <span class="value">{{ "%.0f"|format(opp.competition * 100) }}%</span>
+            </div>
+            <div class="financial-row">
+                <span class="label">预估均价</span>
+                <span class="value pos">¥{{ opp.avg_price }}</span>
+            </div>
+            <div class="financial-row">
+                <span class="label">利润率</span>
+                <span class="value pos">100%（数字产品）</span>
+            </div>
+            <div class="financial-row">
+                <span class="label">来源</span>
+                <span class="value" style="font-size:12px;">{{ opp.source }}</span>
+            </div>
+            <div style="margin-top:8px;">
+                <span class="badge {% if opp.status == 'generated' %}listed{% elif opp.status == 'sold' %}sold{% else %}ready{% endif %}">
+                    {% if opp.status == 'new' %}新机会
+                    {% elif opp.status == 'generated' %}已生成
+                    {% elif opp.status == 'listed' %}已上架
+                    {% elif opp.status == 'sold' %}已售出
+                    {% else %}{{ opp.status }}{% endif %}
+                </span>
+                {% if opp.notes %}
+                <span style="font-size:12px; color:#86868b; margin-left:8px;">{{ opp.notes[:50] }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <div style="font-size:40px;">🎯</div>
+            <p>还没有发现机会</p>
+            <a href="/action/analyze" class="btn" style="margin-top:12px;">立即扫描热榜</a>
+        </div>
+    {% endif %}
+</div>
+
+<div class="nav">
+    <a href="/"><span class="nav-icon">🏠</span>首页</a>
+    <a href="/products"><span class="nav-icon">📦</span>产品</a>
+    <a href="/opportunities" class="active"><span class="nav-icon">🎯</span>机会</a>
+    <a href="/tasks"><span class="nav-icon">📋</span>任务</a>
+    <a href="/finance"><span class="nav-icon">💰</span>财务</a>
+</div>
+
+{% endblock %}

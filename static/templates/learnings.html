@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>📚 学习记录</h1>
+    <div class="sub">系统自动积累的经验</div>
+</div>
+
+<div class="container">
+    {% if learnings %}
+        {% for l in learnings %}
+        <div class="learning-item">
+            <div class="learning-insight">{{ l.insight }}</div>
+            <div class="learning-meta">
+                类别：{{ l.category }} · 
+                可信度：{{ (l.confidence * 100)|round }}% · 
+                样本：{{ l.sample_count }}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <div style="font-size:40px;">📚</div>
+            <p>还没有学习记录</p>
+            <p style="margin-top:6px;">系统运行一段时间后会自动积累</p>
+        </div>
+    {% endif %}
+
+    <a href="/" class="btn secondary block">← 返回首页</a>
+</div>
+
+{% endblock %}

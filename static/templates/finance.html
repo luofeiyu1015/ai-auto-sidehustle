@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>💰 财务面板</h1>
+    <div class="sub">只记录真实到账金额</div>
+</div>
+
+<div class="container">
+    <!-- 概览 -->
+    <div class="card">
+        <h2>📊 收益概览</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="num pos">¥{{ report.summary.total_income }}</div>
+                <div class="label">总收入</div>
+            </div>
+            <div class="stat-item">
+                <div class="num neg">¥{{ report.summary.total_cost }}</div>
+                <div class="label">总支出</div>
+            </div>
+            <div class="stat-item">
+                <div class="num">¥{{ report.summary.net_profit }}</div>
+                <div class="label">净利润</div>
+            </div>
+            <div class="stat-item">
+                <div class="num">{{ report.summary.roi }}%</div>
+                <div class="label">ROI</div>
+            </div>
+        </div>
+        <div class="financial-row" style="margin-top:12px;">
+            <span class="label">本周收入</span>
+            <span class="value pos">¥{{ report.summary.week_income }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">本月收入</span>
+            <span class="value pos">¥{{ report.summary.month_income }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">售出产品</span>
+            <span class="value">{{ report.summary.sold_products }} 个</span>
+        </div>
+    </div>
+
+    <!-- 录入收入 -->
+    <div class="card">
+        <h2>📥 录入新记录</h2>
+        <form action="/finance/record" method="post">
+            <div class="form-row">
+                <label>类型</label>
+                <select name="type">
+                    <option value="income">💰 收入（真实到账）</option>
+                    <option value="cost">💸 支出（API/服务器）</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label>金额（元）</label>
+                <input type="number" name="amount" step="0.01" placeholder="例如: 19.9" required>
+            </div>
+            <div class="form-row">
+                <label>平台</label>
+                <input type="text" name="platform" placeholder="闲鱼 / 小红书 / 抖音 / 得物">
+            </div>
+            <div class="form-row">
+                <label>备注</label>
+                <input type="text" name="description" placeholder="产品名 / 说明">
+            </div>
+            <button type="submit" class="btn block">保存</button>
+        </form>
+    </div>
+
+    <!-- 交易历史 -->
+    {% if transactions %}
+    <div class="card">
+        <h2>📜 交易历史（近90天）</h2>
+        {% for tx in transactions %}
+        <div class="financial-row">
+            <span class="label">
+                {{ '💰' if tx.type == 'income' else '💸' }}
+                {{ tx.platform or '未指定' }}
+                {% if tx.description %}· {{ tx.description }}{% endif %}
+            </span>
+            <span class="value {{ 'pos' if tx.type == 'income' else 'neg' }}">
+                {{ '+' if tx.type == 'income' else '-' }}¥{{ tx.amount }}
+            </span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<div class="nav">
+    <a href="/"><span class="nav-icon">🏠</span>首页</a>
+    <a href="/products"><span class="nav-icon">📦</span>产品</a>
+    <a href="/opportunities"><span class="nav-icon">🎯</span>机会</a>
+    <a href="/tasks"><span class="nav-icon">📋</span>任务</a>
+    <a href="/finance" class="active"><span class="nav-icon">💰</span>财务</a>
+</div>
+
+{% endblock %}

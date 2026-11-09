@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="header">
+    <h1>{{ product.cover_emoji }} {{ product.name }}</h1>
+    <div class="sub">¥{{ product.price }} · {{ product.platforms }}</div>
+</div>
+
+<div class="container">
+    <!-- 产品信息 -->
+    <div class="card">
+        <h2>📋 产品详情</h2>
+        <div class="financial-row">
+            <span class="label">定价</span>
+            <span class="value pos">¥{{ product.price }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">成本</span>
+            <span class="value">¥{{ product.cost }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">利润率</span>
+            <span class="value pos">100%</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">质量分</span>
+            <span class="value">{{ product.quality_score }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">市场分</span>
+            <span class="value">{{ product.market_score }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">状态</span>
+            <span class="badge {{ product.status }}">
+                {% if product.status == 'ready' %}待上架
+                {% elif product.status == 'listed' %}已上架
+                {% elif product.status == 'sold' %}已售出
+                {% else %}失败{% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- 产品描述 -->
+    <div class="card">
+        <h2>📝 产品介绍</h2>
+        <p style="font-size:14px; line-height:1.6;">{{ product.description }}</p>
+    </div>
+
+    <!-- 生成的内容 -->
+    {% if product.content %}
+    <div class="card">
+        <h2>📄 产品内容（给客户的）</h2>
+        <div class="copy-box">
+            <div class="copy-body">{{ product.content[:2000] }}{% if product.content|length > 2000 %}...{% endif %}</div>
+        </div>
+        <div class="copy-actions">
+            <button onclick="copyText(`{{ product.content }}`)" class="btn">📋 复制全部</button>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 各平台文案 -->
+    <div class="card">
+        <h2>✍️ 平台文案（直接复制上架用）</h2>
+        <a href="/product/{{ product.id }}/generate-copies" class="btn secondary block">🔄 重新生成所有文案</a>
+        
+        {% if copies %}
+            {% for copy in copies %}
+            <div class="copy-box">
+                <div class="copy-title">【{{ copy.platform }}】{{ copy.title }}</div>
+                {% if copy.hook %}
+                <div style="font-size:12px; color:#86868b; margin-bottom:6px;">💡 钩子：{{ copy.hook }}</div>
+                {% endif %}
+                <div class="copy-body">{{ copy.body }}</div>
+                {% if copy.tags %}
+                <div style="font-size:12px; color:#FF6B35; margin-top:8px;">🏷️ {{ copy.tags }}</div>
+                {% endif %}
+                <div class="copy-actions">
+                    <button onclick="copyText(`{{ copy.title|e }}\n\n{{ copy.body }}\n\n{{ copy.tags }}`)" class="btn">📋 复制这套</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">
+                <p>还没有文案，点上面的按钮生成</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <a href="/products" class="btn secondary block">← 返回产品列表</a>
+</div>
+
+<script>
+function copyText(text) {
+    // 转义 HTML 实体
+    text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
+    navigator.clipboard.writeText(text).then(() => {
+        alert('✅ 已复制到剪贴板！');
+    }).catch(() => {
+        // 兼容旧浏览器
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('✅ 已复制！');
+    });
+}
+</script>
+
+{% endblock %}
