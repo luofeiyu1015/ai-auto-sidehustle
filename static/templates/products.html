@@ -11,7 +11,11 @@
         {% for p in products %}
         <a href="/product/{{ p.id }}" class="product-card">
             <div class="product-header">
+                {% if p.cover_path %}
+                <img src="/{{ p.cover_path }}" style="width:72px; height:72px; border-radius:10px; object-fit:cover;">
+                {% else %}
                 <span class="product-emoji">{{ p.cover_emoji }}</span>
+                {% endif %}
                 <div class="product-info">
                     <div class="product-name">{{ p.name }}</div>
                     <div class="product-meta">{{ p.platforms }} · 质量 {{ p.quality_score }}</div>

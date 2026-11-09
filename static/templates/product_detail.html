@@ -3,87 +3,138 @@
 
 <div class="header">
     <h1>{{ product.cover_emoji }} {{ product.name }}</h1>
-    <div class="sub">¥{{ product.price }} · {{ product.platforms }}</div>
+    <div class="sub">¥{{ product.price }} · {{ product.platforms }} · 质量 {{ product.quality_score }}</div>
 </div>
 
 <div class="container">
-    <!-- 产品信息 -->
+    <!-- 🖼️ 封面图 -->
+    {% if product.cover_path %}
     <div class="card">
-        <h2>📋 产品详情</h2>
-        <div class="financial-row">
-            <span class="label">定价</span>
-            <span class="value pos">¥{{ product.price }}</span>
-        </div>
-        <div class="financial-row">
-            <span class="label">成本</span>
-            <span class="value">¥{{ product.cost }}</span>
-        </div>
-        <div class="financial-row">
-            <span class="label">利润率</span>
-            <span class="value pos">100%</span>
-        </div>
-        <div class="financial-row">
-            <span class="label">质量分</span>
-            <span class="value">{{ product.quality_score }}</span>
-        </div>
-        <div class="financial-row">
-            <span class="label">市场分</span>
-            <span class="value">{{ product.market_score }}</span>
-        </div>
-        <div class="financial-row">
-            <span class="label">状态</span>
-            <span class="badge {{ product.status }}">
-                {% if product.status == 'ready' %}待上架
-                {% elif product.status == 'listed' %}已上架
-                {% elif product.status == 'sold' %}已售出
-                {% else %}失败{% endif %}
-            </span>
-        </div>
-    </div>
-
-    <!-- 产品描述 -->
-    <div class="card">
-        <h2>📝 产品介绍</h2>
-        <p style="font-size:14px; line-height:1.6;">{{ product.description }}</p>
-    </div>
-
-    <!-- 生成的内容 -->
-    {% if product.content %}
-    <div class="card">
-        <h2>📄 产品内容（给客户的）</h2>
-        <div class="copy-box">
-            <div class="copy-body">{{ product.content[:2000] }}{% if product.content|length > 2000 %}...{% endif %}</div>
-        </div>
+        <h2>🖼️ 商品封面</h2>
+        <img src="/{{ product.cover_path }}" style="width:100%; border-radius:12px;" alt="封面图">
         <div class="copy-actions">
-            <button onclick="copyText(`{{ product.content }}`)" class="btn">📋 复制全部</button>
+            <button onclick="downloadCover()" class="btn block">💾 下载封面图</button>
         </div>
     </div>
     {% endif %}
 
-    <!-- 各平台文案 -->
+    <!-- 📋 产品信息 -->
     <div class="card">
-        <h2>✍️ 平台文案（直接复制上架用）</h2>
-        <a href="/product/{{ product.id }}/generate-copies" class="btn secondary block">🔄 重新生成所有文案</a>
+        <h2>📋 产品规格</h2>
+        <div class="financial-row">
+            <span class="label">产品编号</span>
+            <span class="value">{{ product.id }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">产品分类</span>
+            <span class="value">{{ product.category }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">建议售价</span>
+            <span class="value pos">¥{{ product.price }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">生产成本</span>
+            <span class="value neg">¥{{ '%.2f'|format(product.cost) }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">预期利润</span>
+            <span class="value pos">¥{{ '%.2f'|format(product.price - product.cost) }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">利润率</span>
+            <span class="value pos">{% if product.cost > 0 %}{{ '%.0f'|format((product.price - product.cost) / product.price * 100) }}%{% else %}100%（数字产品）{% endif %}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">质量评分</span>
+            <span class="value">{{ product.quality_score }} / 100</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">适合平台</span>
+            <span class="value">{{ product.platforms }}</span>
+        </div>
+        <div class="financial-row">
+            <span class="label">状态</span>
+            <span class="badge {{ product.status or 'ready' }}">
+                {% if product.status == 'listed' %}已上架
+                {% elif product.status == 'sold' %}已售出
+                {% elif product.status == 'failed' %}失败
+                {% else %}待上架{% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- 📝 商品描述（上架用）-->
+    <div class="card">
+        <h2>📝 商品描述（直接复制去上架）</h2>
+        <div class="copy-box">
+            <div class="copy-body">{{ product.description }}</div>
+        </div>
+        <div class="copy-actions">
+            <button onclick="copyText(`{{ product.description }}`)" class="btn">📋 复制描述</button>
+        </div>
+    </div>
+
+    <!-- 📄 实际交付文件（TXT 下载）-->
+    {% if product.txt_path %}
+    <div class="card">
+        <h2>📄 实际交付文件（TXT 可下载）</h2>
+        <p style="font-size:13px; color:#86868b; margin-bottom:10px;">
+            这是客户购买后会收到的完整文件。包含所有提示词、使用说明、示例。
+        </p>
+        <div style="background:#FFF5F0; padding:12px; border-radius:10px; font-size:12px; margin-bottom:10px;">
+            📁 路径：{{ product.txt_path }}<br>
+            📦 大小：{{ (product.txt_path and '') or '—' }}KB
+        </div>
+        <div class="copy-actions">
+            <a href="/{{ product.txt_path }}" class="btn block" style="text-decoration:none;">⬇️ 下载完整 TXT 文件</a>
+        </div>
+        <div class="copy-actions">
+            <a href="/{{ product.txt_path }}" class="btn secondary block" style="text-decoration:none;" target="_blank">👁️ 在新窗口预览</a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 📚 产品内容预览 -->
+    {% if product.content %}
+    <div class="card">
+        <h2>📚 产品内容概览</h2>
+        <div class="copy-box">
+            <div class="copy-body">{{ product.content }}</div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ✍️ 4 平台文案 -->
+    <div class="card">
+        <h2>✍️ 4 平台上架文案（直接复制用）</h2>
         
         {% if copies %}
             {% for copy in copies %}
             <div class="copy-box">
-                <div class="copy-title">【{{ copy.platform }}】{{ copy.title }}</div>
+                <div class="copy-title">
+                    <span>📱 【{{ copy.platform }}】</span>
+                    <span class="copy-platform">{{ copy.platform }}</span>
+                </div>
+                {% if copy.title %}
+                <div style="font-weight:600; font-size:14px; margin-bottom:6px;">📌 上架标题：{{ copy.title }}</div>
+                {% endif %}
                 {% if copy.hook %}
-                <div style="font-size:12px; color:#86868b; margin-bottom:6px;">💡 钩子：{{ copy.hook }}</div>
+                <div class="copy-hook">💡 钩子：{{ copy.hook }}</div>
                 {% endif %}
                 <div class="copy-body">{{ copy.body }}</div>
                 {% if copy.tags %}
-                <div style="font-size:12px; color:#FF6B35; margin-top:8px;">🏷️ {{ copy.tags }}</div>
+                <div style="font-size:12px; color:#FF6B35; margin-top:8px;">🏷️ 话题标签：{{ copy.tags }}</div>
                 {% endif %}
                 <div class="copy-actions">
-                    <button onclick="copyText(`{{ copy.title|e }}\n\n{{ copy.body }}\n\n{{ copy.tags }}`)" class="btn">📋 复制这套</button>
+                    <button onclick="copyText(`{{ (copy.title or '')|e }}\n\n{{ copy.body|e }}\n\n{{ copy.tags }}`)" class="btn">📋 复制整套</button>
+                    <button onclick="copyText(`{{ copy.body|e }}`)" class="btn secondary">只复制正文</button>
                 </div>
             </div>
             {% endfor %}
         {% else %}
             <div class="empty">
-                <p>还没有文案，点上面的按钮生成</p>
+                <p>还没有文案</p>
             </div>
         {% endif %}
     </div>
@@ -93,20 +144,22 @@
 
 <script>
 function copyText(text) {
-    // 转义 HTML 实体
     text = text.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
-    navigator.clipboard.writeText(text).then(() => {
-        alert('✅ 已复制到剪贴板！');
-    }).catch(() => {
-        // 兼容旧浏览器
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => { alert('✅ 已复制！'); });
+    } else {
+        var ta = document.createElement('textarea'); ta.value = text;
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
         alert('✅ 已复制！');
-    });
+    }
+}
+function downloadCover() {
+    {% if product.cover_path %}
+    var a = document.createElement('a');
+    a.href = '/{{ product.cover_path }}';
+    a.download = 'cover.png';
+    a.click();
+    {% endif %}
 }
 </script>
 

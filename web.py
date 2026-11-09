@@ -14,7 +14,8 @@ from modules import db, market, product, copywriter, finance, operations
 from config import SERVER_HOST, SERVER_PORT
 
 app = Flask(__name__, 
-            template_folder=str(BASE_DIR / 'static' / 'templates'))
+            template_folder=str(BASE_DIR / 'static' / 'templates'),
+            static_folder=str(BASE_DIR / 'static'))
 
 
 def get_nav_items(active=''):
